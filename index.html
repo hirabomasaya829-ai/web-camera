@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Web機能テスト v1.11.0</title>
+<title>Web機能テスト v1.11.1</title>
 <style>
 :root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif}*{box-sizing:border-box}body{margin:0;background:#111318;color:#f6f7f9}main{max-width:720px;margin:auto;padding:22px 16px}h1{font-size:22px;margin:0 0 6px}p{color:#b9bec9;font-size:14px;line-height:1.6}.preview{background:#050505;aspect-ratio:4/3;border-radius:14px;overflow:hidden;display:grid;place-items:center;margin:20px 0;position:relative}video{width:100%;height:100%;object-fit:contain}#placeholder{position:absolute;color:#b9bec9;font-size:14px;text-align:center;pointer-events:none}.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}button,a.download{border:1px solid #404753;border-radius:10px;padding:13px 10px;background:#292f3a;color:white;font-size:15px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none}button.primary{background:#396ae5;border-color:#396ae5}button:disabled{opacity:.4;cursor:not-allowed}#status{min-height:44px}#photo{display:none;width:100%;border-radius:12px;margin:14px 0}a.download{display:none;background:#285b49;border-color:#285b49}small{color:#aeb4bf;display:block;margin-top:18px;line-height:1.6}
 .viz{background:#171d28;border:1px solid #343e50;border-radius:14px;padding:12px;margin:12px 0 16px;overflow:hidden}.vizTitle{font-size:13px;color:#b9c9e7;margin:0 0 8px}.gpsCanvas{width:100%;height:230px;display:block;border-radius:10px;background:#101724}.gpsMetrics{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:#c9d4e7;margin-top:8px}.phoneStage{height:235px;display:grid;place-items:center;perspective:600px;background:radial-gradient(ellipse at center,#293851 0%,#101724 70%);border-radius:10px;position:relative}.phone3d{width:92px;height:166px;border:8px solid #333c4d;border-radius:19px;background:linear-gradient(145deg,#5fa4ff,#19409e);box-shadow:8px 12px 28px #0008,inset 0 0 0 2px #8ebdff;display:flex;align-items:center;justify-content:center;transform-style:preserve-3d;transition:transform .12s linear;position:relative}.phone3d:before{content:"";position:absolute;top:6px;width:30px;height:5px;border-radius:8px;background:#0e1b32}.phone3d span{font-size:12px;font-weight:bold;text-shadow:0 1px 3px #0007}.stageHint{position:absolute;bottom:10px;color:#9eb1ce;font-size:12px}.accelTrack{height:13px;border-radius:8px;background:#263145;position:relative;overflow:hidden;margin-top:10px}.accelBar{position:absolute;left:50%;height:100%;width:0;background:#55c7a3;transition:width .15s linear}.accelLabel{font-size:12px;color:#b9c9e7;margin-top:5px}.extra{margin-top:28px;padding-top:20px;border-top:1px solid #404753}.extra h2{font-size:19px}.sensorCanvas{width:100%;height:auto;background:#0d1422;border:1px solid #33415b;border-radius:12px;margin-top:12px}.readout{background:#20242d;border-radius:10px;padding:12px;margin:12px 0;font-size:14px;line-height:1.7}#scanCopy,#speechCopy{margin-top:4px}
@@ -19,7 +19,7 @@
 #roomMapSection .p2pField{width:100%;border:1px solid #566074;background:#222a37;color:#fff;border-radius:10px;padding:12px;font-size:16px}
 #roomMapSection .p2pLabel{font-size:13px;color:#b8c6d6;margin:12px 0 5px}
 </style></head>
-<body><main><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><span style="font-size:12px;color:#aeb4bf">Web機能テストアプリ</span><span id="appVersion" style="font-size:13px;font-weight:700;color:#dbe7ff;background:#273956;border:1px solid #506a95;border-radius:999px;padding:5px 12px">v1.11.0</span></div><h1>Webカメラ</h1><p>ブラウザからカメラを起動して写真を保存できます。</p>
+<body><main><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><span style="font-size:12px;color:#aeb4bf">Web機能テストアプリ</span><span id="appVersion" style="font-size:13px;font-weight:700;color:#dbe7ff;background:#273956;border:1px solid #506a95;border-radius:999px;padding:5px 12px">v1.11.1</span></div><h1>Webカメラ</h1><p>ブラウザからカメラを起動して写真を保存できます。</p>
 <div class="preview"><video id="video" autoplay playsinline muted></video><div id="placeholder">「カメラ起動」を押してください</div></div>
 <div class="controls"><button class="primary" id="start">カメラ起動</button><button id="switch" disabled>前面 / 背面切替</button><button id="capture" disabled>写真を撮る</button><button id="stop" disabled>カメラ停止</button></div>
 <p id="status" role="status" aria-live="polite"></p><canvas id="canvas" hidden></canvas><img id="photo" alt="撮影した写真"><a id="download" class="download">撮影画像を保存</a>
@@ -354,7 +354,7 @@ canvasRecStop.addEventListener('click',()=>{if(canvasRecorder?.state==='recordin
 window.addEventListener('pagehide',()=>{if(canvasRecorder?.state==='recording')canvasRecorder.stop();canvasSetIdle();if(canvasBlobURL)URL.revokeObjectURL(canvasBlobURL)});
 canvasDraw();
 
-/* v1.11.0 PeerJS WebRTC data channel: text, slider sync and RTT */
+/* v1.11.1 PeerJS WebRTC data channel: text, slider sync and RTT */
 const p2pEls=Object.fromEntries(['Init','Copy','Mine','Status','Remote','Connect','Disconnect','Log','Message','Send','Slider','Value','Ping','Latency'].map(k=>[k,document.getElementById('p2p'+k)]));
 let p2pPeer=null,p2pConn=null,p2pCode='',p2pLoadPromise=null,p2pLastSlider=0,p2pPingSerial=0;
 const p2pStatus=s=>{p2pEls.Status.textContent=s};
@@ -453,18 +453,21 @@ p2pEls.Ping.addEventListener('click',()=>{if(!p2pActive())return;p2pPingSerial++
 window.addEventListener('pagehide',()=>{p2pConn?.close();p2pPeer?.destroy()});
 p2pControls();
 
-/* v1.11.0 shared multi-user map over PeerJS WebRTC */
+/* v1.11.1 shared multi-user map over PeerJS WebRTC */
 (()=>{
 const $=id=>document.getElementById('roomMap'+id);
 const canvas=$('Canvas'),ctx=canvas.getContext('2d');
 const state={peer:null,hostConn:null,guests:new Map(),members:new Map(),room:'',me:'',name:'',host:false,joined:false,pointer:false,lastSent:0,joining:false,frame:0,lastFrame:0};
-const voice={stream:null,calls:new Map(),pending:new Set(),enabled:false};
+const voice={stream:null,calls:new Map(),pending:new Set(),ready:new Set(),enabled:false};
 const voiceStatus=s=>document.getElementById('roomMapVoiceStatus').textContent=s;
 const voiceStart=document.getElementById('roomMapVoiceStart'),voiceStop=document.getElementById('roomMapVoiceStop'),voiceAudios=document.getElementById('roomMapVoiceAudios');
 function voiceCloseCalls(){for(const call of voice.calls.values())try{call.close()}catch(e){}voice.calls.clear();voice.pending.clear();voiceAudios.replaceChildren()}
-function voiceCleanup(){voice.enabled=false;voiceCloseCalls();if(voice.stream){voice.stream.getTracks().forEach(t=>t.stop());voice.stream=null}voiceStart.disabled=!state.joined;voiceStop.disabled=true;voiceStatus('通話停止中。各端末で通話を開始すると会話できます。')}
+function voiceCleanup(){
+ if(voice.enabled&&state.joined){if(state.host)broadcast({type:'voice-off',id:state.me});else sendToHost({type:'voice-off'})}
+ voice.enabled=false;voice.ready.clear();voiceCloseCalls();if(voice.stream){voice.stream.getTracks().forEach(t=>t.stop());voice.stream=null}voiceStart.disabled=!state.joined;voiceStop.disabled=true;voiceStatus('通話停止中。各端末で通話を開始すると会話できます。')}
+function voiceShouldCall(id){return state.me===hostId(state.room)||(!id.startsWith('web-camera-map-v110-room-')&&state.me.localeCompare(id)<0)}
 function voiceConnect(id){
- if(!voice.enabled||!voice.stream||!state.peer||id===state.me||voice.calls.has(id)||voice.pending.has(id))return;
+ if(!voice.enabled||!voice.ready.has(id)||!voiceShouldCall(id)||!voice.stream||!state.peer||id===state.me||voice.calls.has(id)||voice.pending.has(id))return;
  voice.pending.add(id);
  try{const call=state.peer.call(id,voice.stream);if(call)voiceAttach(call);else voice.pending.delete(id)}catch(e){voice.pending.delete(id);voiceStatus('通話接続エラー: '+e.message)}
 }
@@ -475,8 +478,9 @@ function voiceAttach(call){
  call.on('stream',remote=>{
   let audio=document.getElementById('voiceAudio-'+CSS.escape(id));
   if(!audio){audio=document.createElement('audio');audio.id='voiceAudio-'+id;audio.autoplay=true;audio.playsInline=true;voiceAudios.appendChild(audio)}
+  audio.muted=false;audio.volume=1;
   audio.srcObject=remote;audio.play().catch(()=>voiceStatus('音声再生がブロックされました。画面をタップするか通話を再開始してください。'));
-  voiceStatus('通話中：'+voice.calls.size+'人と接続');
+  voiceStatus('音声受信中：'+[...voiceAudios.children].filter(a=>a.srcObject).length+'人（聞こえない場合は端末の音量・出力先を確認）');
  });
  call.on('close',()=>{voice.calls.delete(id);voice.pending.delete(id);document.getElementById('voiceAudio-'+CSS.escape(id))?.remove()});
  call.on('error',()=>{voice.calls.delete(id);voice.pending.delete(id);document.getElementById('voiceAudio-'+CSS.escape(id))?.remove()});
@@ -484,11 +488,13 @@ function voiceAttach(call){
 function voiceIncoming(call){
  if(!voice.enabled||!voice.stream){call.close();return}
  if(voice.calls.has(call.peer)){call.close();return}
+ voice.ready.add(call.peer);
  voiceAttach(call);call.answer(voice.stream);
+ voiceStatus('相手の音声を待っています…');
 }
 function voiceSync(){
  if(!voice.enabled)return;
- for(const id of state.members.keys())if(id!==state.me)voiceConnect(id);
+ for(const id of state.members.keys())if(id!==state.me&&voice.ready.has(id))voiceConnect(id);
  for(const [id,call] of voice.calls)if(!state.members.has(id)){call.close();voice.calls.delete(id)}
 }
 voiceStart.addEventListener('click',async()=>{
@@ -499,6 +505,7 @@ voiceStart.addEventListener('click',async()=>{
   if(!state.joined){voiceCleanup();return}
   voice.enabled=true;voiceStop.disabled=false;voiceStatus('通話待機中。ほかの参加者も「通話を開始」を押してください。');
   voiceSync();if(state.host)broadcast({type:'voice-ready',id:state.me});else sendToHost({type:'voice-ready'});
+  voiceStatus('マイク起動中。相手の通話開始・接続を待っています…');
  }catch(e){voiceCleanup();voiceStatus('マイクを開始できません: '+(e.message||e.name))}
 });
 voiceStop.addEventListener('click',voiceCleanup);
@@ -563,12 +570,21 @@ function applySnapshot(data){
   next.set(p.id,{name:safeName(p.name),x,y,rx:before?.rx??x,ry:before?.ry??y});
  }
  state.members=next;
+ for(const id of [...voice.ready])if(!next.has(id))voice.ready.delete(id);
  state.joined=true;$('Center').disabled=false;voiceStart.disabled=false;roster();beginAnimation();voiceSync();
 }
 function sendToHost(data){if(state.host){handleHostMessage(state.me,data)}else if(state.hostConn?.open)try{state.hostConn.send(data)}catch(e){}}
 function handleHostMessage(sender,data){
  if(!data||typeof data!=='object')return;
- if(data.type==='voice-ready'){broadcast({type:'voice-ready',id:sender},sender);if(voice.enabled)voiceConnect(sender);return}
+ if(data.type==='voice-ready'){
+  if(!state.members.has(sender))return;
+  voice.ready.add(sender);broadcast({type:'voice-ready',id:sender},sender);
+  if(voice.enabled){const conn=state.guests.get(sender);if(conn?.open)conn.send({type:'voice-ready',id:state.me});voiceConnect(sender)}
+  return;
+ }
+ if(data.type==='voice-off'){
+  voice.ready.delete(sender);const call=voice.calls.get(sender);if(call)call.close();broadcast({type:'voice-off',id:sender},sender);return;
+ }
  if(data.type==='move'&&Number.isFinite(data.x)&&Number.isFinite(data.y)){
   const p=state.members.get(sender);if(!p)return;
   p.x=Math.max(0,Math.min(1,data.x));p.y=Math.max(0,Math.min(1,data.y));
@@ -584,7 +600,9 @@ function guestConnection(conn){
   const x=.2+Math.random()*.6,y=.2+Math.random()*.6;
   state.members.set(conn.peer,{name:'参加者',x,y,rx:x,ry:y});
   conn.send({type:'welcome',id:conn.peer});
-  conn.send(snapshot());broadcast(snapshot(),conn.peer);roster();if(voice.enabled)conn.send({type:'voice-ready',id:state.me});
+  conn.send(snapshot());broadcast(snapshot(),conn.peer);roster();
+  for(const id of voice.ready)conn.send({type:'voice-ready',id});
+  if(voice.enabled)conn.send({type:'voice-ready',id:state.me});
  });
  conn.on('data',data=>{
   if(!state.guests.has(conn.peer)||!data||typeof data!=='object')return;
@@ -594,7 +612,7 @@ function guestConnection(conn){
  });
  conn.on('close',()=>{
   if(!state.guests.has(conn.peer))return;
-  state.guests.delete(conn.peer);state.members.delete(conn.peer);broadcast(snapshot());roster();voiceSync();
+  state.guests.delete(conn.peer);state.members.delete(conn.peer);voice.ready.delete(conn.peer);broadcast(snapshot());roster();voiceSync();
  });
  conn.on('error',()=>{});
 }
@@ -641,7 +659,8 @@ function startGuest(room){
     applySnapshot(data);state.joining=false;clearTimeout(timeout);$('Leave').disabled=false;
     status('ルーム '+room+' に参加中。マップをタップして移動できます。');voiceStart.disabled=false;
    }
-   if(data.type==='voice-ready'&&typeof data.id==='string'&&voice.enabled)voiceConnect(data.id);
+   if(data.type==='voice-ready'&&typeof data.id==='string'&&state.members.has(data.id)){voice.ready.add(data.id);if(voice.enabled)voiceConnect(data.id)}
+   if(data.type==='voice-off'&&typeof data.id==='string'){voice.ready.delete(data.id);voice.calls.get(data.id)?.close()}
    if(data.type==='move'&&typeof data.id==='string'&&Number.isFinite(data.x)&&Number.isFinite(data.y)){
     const p=state.members.get(data.id);if(p){p.x=Math.max(0,Math.min(1,data.x));p.y=Math.max(0,Math.min(1,data.y))}
    }
