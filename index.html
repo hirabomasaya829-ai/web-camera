@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Web機能テスト v1.9.0</title>
+<title>Web機能テスト v1.10.0</title>
 <style>
 :root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif}*{box-sizing:border-box}body{margin:0;background:#111318;color:#f6f7f9}main{max-width:720px;margin:auto;padding:22px 16px}h1{font-size:22px;margin:0 0 6px}p{color:#b9bec9;font-size:14px;line-height:1.6}.preview{background:#050505;aspect-ratio:4/3;border-radius:14px;overflow:hidden;display:grid;place-items:center;margin:20px 0;position:relative}video{width:100%;height:100%;object-fit:contain}#placeholder{position:absolute;color:#b9bec9;font-size:14px;text-align:center;pointer-events:none}.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}button,a.download{border:1px solid #404753;border-radius:10px;padding:13px 10px;background:#292f3a;color:white;font-size:15px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none}button.primary{background:#396ae5;border-color:#396ae5}button:disabled{opacity:.4;cursor:not-allowed}#status{min-height:44px}#photo{display:none;width:100%;border-radius:12px;margin:14px 0}a.download{display:none;background:#285b49;border-color:#285b49}small{color:#aeb4bf;display:block;margin-top:18px;line-height:1.6}
 .viz{background:#171d28;border:1px solid #343e50;border-radius:14px;padding:12px;margin:12px 0 16px;overflow:hidden}.vizTitle{font-size:13px;color:#b9c9e7;margin:0 0 8px}.gpsCanvas{width:100%;height:230px;display:block;border-radius:10px;background:#101724}.gpsMetrics{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:#c9d4e7;margin-top:8px}.phoneStage{height:235px;display:grid;place-items:center;perspective:600px;background:radial-gradient(ellipse at center,#293851 0%,#101724 70%);border-radius:10px;position:relative}.phone3d{width:92px;height:166px;border:8px solid #333c4d;border-radius:19px;background:linear-gradient(145deg,#5fa4ff,#19409e);box-shadow:8px 12px 28px #0008,inset 0 0 0 2px #8ebdff;display:flex;align-items:center;justify-content:center;transform-style:preserve-3d;transition:transform .12s linear;position:relative}.phone3d:before{content:"";position:absolute;top:6px;width:30px;height:5px;border-radius:8px;background:#0e1b32}.phone3d span{font-size:12px;font-weight:bold;text-shadow:0 1px 3px #0007}.stageHint{position:absolute;bottom:10px;color:#9eb1ce;font-size:12px}.accelTrack{height:13px;border-radius:8px;background:#263145;position:relative;overflow:hidden;margin-top:10px}.accelBar{position:absolute;left:50%;height:100%;width:0;background:#55c7a3;transition:width .15s linear}.accelLabel{font-size:12px;color:#b9c9e7;margin-top:5px}.extra{margin-top:28px;padding-top:20px;border-top:1px solid #404753}.extra h2{font-size:19px}.sensorCanvas{width:100%;height:auto;background:#0d1422;border:1px solid #33415b;border-radius:12px;margin-top:12px}.readout{background:#20242d;border-radius:10px;padding:12px;margin:12px 0;font-size:14px;line-height:1.7}#scanCopy,#speechCopy{margin-top:4px}
@@ -15,8 +15,11 @@
 #p2pSection .p2pSlider{width:100%;accent-color:#4da2ff}
 #p2pSection .p2pLabel{font-size:13px;color:#b8c6d6;margin:12px 0 5px}
 #p2pSection .p2pHint{font-size:13px;color:#c2c9d5;line-height:1.7}
+
+#roomMapSection .p2pField{width:100%;border:1px solid #566074;background:#222a37;color:#fff;border-radius:10px;padding:12px;font-size:16px}
+#roomMapSection .p2pLabel{font-size:13px;color:#b8c6d6;margin:12px 0 5px}
 </style></head>
-<body><main><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><span style="font-size:12px;color:#aeb4bf">Web機能テストアプリ</span><span id="appVersion" style="font-size:13px;font-weight:700;color:#dbe7ff;background:#273956;border:1px solid #506a95;border-radius:999px;padding:5px 12px">v1.9.0</span></div><h1>Webカメラ</h1><p>ブラウザからカメラを起動して写真を保存できます。</p>
+<body><main><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><span style="font-size:12px;color:#aeb4bf">Web機能テストアプリ</span><span id="appVersion" style="font-size:13px;font-weight:700;color:#dbe7ff;background:#273956;border:1px solid #506a95;border-radius:999px;padding:5px 12px">v1.10.0</span></div><h1>Webカメラ</h1><p>ブラウザからカメラを起動して写真を保存できます。</p>
 <div class="preview"><video id="video" autoplay playsinline muted></video><div id="placeholder">「カメラ起動」を押してください</div></div>
 <div class="controls"><button class="primary" id="start">カメラ起動</button><button id="switch" disabled>前面 / 背面切替</button><button id="capture" disabled>写真を撮る</button><button id="stop" disabled>カメラ停止</button></div>
 <p id="status" role="status" aria-live="polite"></p><canvas id="canvas" hidden></canvas><img id="photo" alt="撮影した写真"><a id="download" class="download">撮影画像を保存</a>
@@ -73,6 +76,22 @@
 <div class="controls"><button id="p2pPing" disabled>通信速度を測定（Ping）</button><div id="p2pLatency" class="readout" style="margin:0">往復時間: -- ms</div></div>
 <small>使い方：①両端末でこのページをChrome等で開き「通信の準備を開始」②片方に表示された8桁の番号をもう片方へ入力し「相手に接続」③チャットやスライダーでテスト。<br>
 接続の仲介には無料の公開PeerJS Cloudを利用します。接続後の通信は暗号化されたWebRTCで行いますが、ネットワーク環境によっては接続できません。接続番号を知られた相手も接続を試せるため、個人情報は送らないでください。これは画面共有や通話ではなく、データ通信のテストです。</small>
+</section>
+
+<section id="roomMapSection" class="extra">
+<h2>リアルタイム共有マップ（複数人対応）</h2>
+<p>スマホとPCで同じルームを選ぶと、マップ上の自分のキャラクターを動かせます。移動位置はほかの参加者にもリアルタイムで反映されます。</p>
+<div class="p2pLabel">ルームを選択</div>
+<select id="roomMapSelect" class="p2pField" aria-label="ルーム選択"><option value="1">ルーム 1</option><option value="2">ルーム 2</option><option value="3">ルーム 3</option><option value="4">ルーム 4</option><option value="5">ルーム 5</option></select>
+<div class="p2pLabel">表示名（ほかの参加者に表示されます）</div>
+<input id="roomMapName" class="p2pField" maxlength="16" placeholder="例：スマホ" value="" autocomplete="off">
+<div class="controls" style="margin-top:10px"><button id="roomMapJoin" class="primary">ルームに参加</button><button id="roomMapLeave" disabled>退出</button></div>
+<p id="roomMapStatus" role="status" aria-live="polite">未参加。PCとスマホで同じルームを選んでください。</p>
+<canvas id="roomMapCanvas" width="640" height="400" style="width:100%;aspect-ratio:8/5;background:#172235;border:1px solid #445168;border-radius:12px;display:block;touch-action:none"></canvas>
+<div class="p2pLabel">マップをタップ・クリックして移動（ドラッグでも操作できます）</div>
+<div class="controls"><button id="roomMapCenter" disabled>中央に移動</button><div id="roomMapCount" class="readout" style="margin:0">参加人数: 0人</div></div>
+<div id="roomMapPeople" class="readout">参加者: なし</div>
+<small>架空のマップです。実際のGPS位置は共有しません。ルーム1〜5は公開のテスト用で、パスワードはありません。第三者が同じルームに参加できるため個人情報は入力しないでください。PeerJS Cloudで接続を仲介し、参加者の位置情報（マップ内座標）をWebRTCで送受信します。最初の参加者がルームのホストになり、その人が退出するとほかの参加者も再接続が必要です。大人数向けの常設サービスではなく動作確認用です。</small>
 </section>
 </main>
 <script>
@@ -333,7 +352,7 @@ canvasRecStop.addEventListener('click',()=>{if(canvasRecorder?.state==='recordin
 window.addEventListener('pagehide',()=>{if(canvasRecorder?.state==='recording')canvasRecorder.stop();canvasSetIdle();if(canvasBlobURL)URL.revokeObjectURL(canvasBlobURL)});
 canvasDraw();
 
-/* v1.9.0 PeerJS WebRTC data channel: text, slider sync and RTT */
+/* v1.10.0 PeerJS WebRTC data channel: text, slider sync and RTT */
 const p2pEls=Object.fromEntries(['Init','Copy','Mine','Status','Remote','Connect','Disconnect','Log','Message','Send','Slider','Value','Ping','Latency'].map(k=>[k,document.getElementById('p2p'+k)]));
 let p2pPeer=null,p2pConn=null,p2pCode='',p2pLoadPromise=null,p2pLastSlider=0,p2pPingSerial=0;
 const p2pStatus=s=>{p2pEls.Status.textContent=s};
@@ -431,4 +450,163 @@ p2pEls.Slider.addEventListener('change',()=>p2pSend({type:'slider',value:Number(
 p2pEls.Ping.addEventListener('click',()=>{if(!p2pActive())return;p2pPingSerial++;p2pPingPending=performance.now();p2pEls.Latency.textContent='往復時間: 測定中…';p2pSend({type:'ping',id:p2pPingSerial})});
 window.addEventListener('pagehide',()=>{p2pConn?.close();p2pPeer?.destroy()});
 p2pControls();
+
+/* v1.10.0 shared multi-user map over PeerJS WebRTC */
+(()=>{
+const $=id=>document.getElementById('roomMap'+id);
+const canvas=$('Canvas'),ctx=canvas.getContext('2d');
+const state={peer:null,hostConn:null,guests:new Map(),members:new Map(),room:'',me:'',name:'',host:false,joined:false,pointer:false,lastSent:0,joining:false};
+const palette=['#60a5fa','#f59e0b','#34d399','#fb7185','#c084fc','#22d3ee','#facc15','#f472b6'];
+const hostId=room=>'web-camera-map-v110-room-'+room;
+const status=s=>$('Status').textContent=s;
+const safeName=s=>(s||'参加者').trim().slice(0,16)||'参加者';
+function resetUI(){
+ $('Join').disabled=false;$('Leave').disabled=true;$('Center').disabled=true;$('Select').disabled=false;$('Name').disabled=false;
+ $('Count').textContent='参加人数: 0人';$('People').textContent='参加者: なし';
+}
+function draw(){
+ const w=canvas.width,h=canvas.height;
+ ctx.fillStyle='#172235';ctx.fillRect(0,0,w,h);
+ ctx.strokeStyle='#2b3d55';ctx.lineWidth=1;
+ for(let x=0;x<=w;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}
+ for(let y=0;y<=h;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
+ ctx.fillStyle='#334c65';for(const [x,y,ww,hh] of [[70,60,90,75],[410,65,140,65],[250,220,110,100],[60,290,90,60],[475,280,95,75]]){ctx.fillRect(x,y,ww,hh);ctx.strokeStyle='#5b7690';ctx.strokeRect(x,y,ww,hh)}
+ ctx.fillStyle='#a2b6ce';ctx.font='15px sans-serif';ctx.fillText('共有マップ',14,24);
+ let i=0;for(const [id,p] of state.members){
+  const x=Math.max(15,Math.min(w-15,p.x*w)),y=Math.max(15,Math.min(h-15,p.y*h)),color=palette[i++%palette.length];
+  ctx.beginPath();ctx.arc(x,y,12,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle=id===state.me?'#fff':'#101723';ctx.stroke();
+  ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.fillStyle='#fff';ctx.shadowColor='#000';ctx.shadowBlur=4;ctx.fillText((p.name||'参加者').slice(0,16)+(id===state.me?' (自分)':''),x,Math.max(15,y-19));ctx.shadowBlur=0;ctx.textAlign='start';
+ }
+}
+function roster(){
+ $('Count').textContent='参加人数: '+state.members.size+'人';
+ $('People').textContent='参加者: '+([...state.members.entries()].map(([id,p])=>p.name+(id===state.me?'（自分）':'')).join('、')||'なし');
+ draw();
+}
+function snapshot(){return {type:'snapshot',members:[...state.members.entries()].map(([id,p])=>({id,name:p.name,x:p.x,y:p.y}))}}
+function broadcast(data,except){for(const [id,conn] of state.guests)if(id!==except&&conn.open)try{conn.send(data)}catch(e){}}
+function applySnapshot(data){
+ if(!Array.isArray(data.members))return;
+ state.members.clear();
+ for(const p of data.members.slice(0,60)){if(typeof p.id==='string'&&Number.isFinite(p.x)&&Number.isFinite(p.y))state.members.set(p.id,{name:safeName(p.name),x:Math.max(0,Math.min(1,p.x)),y:Math.max(0,Math.min(1,p.y))})}
+ state.joined=true;$('Center').disabled=false;roster();
+}
+function sendToHost(data){if(state.host){handleHostMessage(state.me,data)}else if(state.hostConn?.open)try{state.hostConn.send(data)}catch(e){}}
+function handleHostMessage(sender,data){
+ if(!data||typeof data!=='object')return;
+ if(data.type==='move'&&Number.isFinite(data.x)&&Number.isFinite(data.y)){
+  const p=state.members.get(sender);if(!p)return;
+  p.x=Math.max(0,Math.min(1,data.x));p.y=Math.max(0,Math.min(1,data.y));
+  broadcast({type:'move',id:sender,x:p.x,y:p.y},sender);roster();
+ }
+}
+function guestConnection(conn){
+ if(state.guests.has(conn.peer)){conn.close();return}
+ conn.on('open',()=>{
+  if(!state.host||!state.joined){conn.close();return}
+  if(state.members.size>=30){conn.send({type:'full'});conn.close();return}
+  state.guests.set(conn.peer,conn);
+  state.members.set(conn.peer,{name:'参加者',x:.2+Math.random()*.6,y:.2+Math.random()*.6});
+  conn.send({type:'welcome',id:conn.peer});
+  conn.send(snapshot());broadcast(snapshot(),conn.peer);roster();
+ });
+ conn.on('data',data=>{
+  if(!state.guests.has(conn.peer)||!data||typeof data!=='object')return;
+  if(data.type==='hello'){
+   const p=state.members.get(conn.peer);if(p){p.name=safeName(data.name);broadcast(snapshot());roster()}
+  }else handleHostMessage(conn.peer,data);
+ });
+ conn.on('close',()=>{
+  if(!state.guests.has(conn.peer))return;
+  state.guests.delete(conn.peer);state.members.delete(conn.peer);broadcast(snapshot());roster();
+ });
+ conn.on('error',()=>{});
+}
+function leave(message='ルームから退出しました'){
+ const peer=state.peer;
+ state.peer=null;state.joined=false;state.joining=false;state.host=false;state.hostConn=null;
+ for(const conn of state.guests.values())try{conn.close()}catch(e){}
+ state.guests.clear();state.members.clear();state.room='';state.me='';
+ if(peer)try{peer.destroy()}catch(e){}
+ resetUI();draw();status(message);
+}
+function startHost(room){
+ const peer=new Peer(hostId(room));state.peer=peer;state.host=true;
+ peer.on('open',id=>{
+  if(state.peer!==peer)return;
+  state.me=id;state.joined=true;state.joining=false;
+  state.members.set(id,{name:state.name,x:.5,y:.5});
+  peer.on('connection',guestConnection);
+  $('Leave').disabled=false;$('Center').disabled=false;
+  status('ルーム '+room+' を作成しました。別の端末から同じルームを選んで参加できます。');roster();
+ });
+ peer.on('error',e=>{
+  if(state.peer!==peer)return;
+  if(e.type==='unavailable-id'){try{peer.destroy()}catch(err){}state.peer=null;startGuest(room)}
+  else leave('接続エラー: '+(e.message||e.type||'不明')+'。もう一度お試しください。');
+ });
+ peer.on('disconnected',()=>{if(state.peer===peer)status('仲介サーバーと切断されました。既存の接続は継続する場合があります。')});
+}
+function startGuest(room){
+ const peer=new Peer();state.peer=peer;state.host=false;
+ peer.on('open',id=>{
+  if(state.peer!==peer)return;
+  state.me=id;
+  const conn=peer.connect(hostId(room),{reliable:true,serialization:'json'});
+  state.hostConn=conn;
+  const timeout=setTimeout(()=>{if(state.peer===peer&&!state.joined)leave('ルームへの接続がタイムアウトしました。先に参加した端末が開いたままか確認してください。')},20000);
+  conn.on('open',()=>{if(state.peer!==peer)return;conn.send({type:'hello',name:state.name});status('ホストに接続しました。参加者情報を取得中…')});
+  conn.on('data',data=>{
+   if(state.peer!==peer||!data||typeof data!=='object')return;
+   if(data.type==='welcome')state.me=data.id;
+   if(data.type==='snapshot'){
+    applySnapshot(data);state.joining=false;clearTimeout(timeout);$('Leave').disabled=false;
+    status('ルーム '+room+' に参加中。マップをタップして移動できます。');
+   }
+   if(data.type==='move'&&typeof data.id==='string'&&Number.isFinite(data.x)&&Number.isFinite(data.y)){
+    const p=state.members.get(data.id);if(p){p.x=data.x;p.y=data.y;draw()}
+   }
+   if(data.type==='full')leave('ルームの参加人数上限（30人）に達しています。');
+  });
+  conn.on('close',()=>{clearTimeout(timeout);if(state.peer===peer)leave('ホストが退出したか、通信が切断されました。再参加してください。')});
+  conn.on('error',()=>{clearTimeout(timeout);if(state.peer===peer)leave('ホストとの通信に失敗しました。もう一度お試しください。')});
+ });
+ peer.on('error',e=>{if(state.peer===peer)leave('接続エラー: '+(e.message||e.type||'不明'))});
+}
+$('Join').addEventListener('click',async()=>{
+ if(state.joining||state.joined)return;
+ state.joining=true;$('Join').disabled=true;$('Select').disabled=true;$('Name').disabled=true;
+ state.room=$('Select').value;state.name=safeName($('Name').value||'参加者');
+ status('通信ライブラリを読み込み中…');
+ try{
+  if(!window.Peer){
+   await new Promise((resolve,reject)=>{
+    const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js';
+    s.onload=()=>window.Peer?resolve():reject(new Error('PeerJSが見つかりません'));
+    s.onerror=()=>reject(new Error('通信ライブラリの読み込みに失敗しました'));document.head.appendChild(s);
+   });
+  }
+  if(!state.joining)return;
+  status('ルーム '+state.room+' に接続しています…');
+  startHost(state.room);
+ }catch(e){leave('準備に失敗しました: '+(e.message||e))}
+});
+$('Leave').addEventListener('click',()=>leave());
+function move(e){
+ if(!state.joined)return;
+ const r=canvas.getBoundingClientRect();
+ const x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),y=Math.max(0,Math.min(1,(e.clientY-r.top)/r.height));
+ const p=state.members.get(state.me);if(!p)return;
+ p.x=x;p.y=y;draw();
+ const now=performance.now();
+ if(now-state.lastSent>35){state.lastSent=now;sendToHost({type:'move',x,y})}
+}
+canvas.addEventListener('pointerdown',e=>{if(!state.joined)return;state.pointer=true;canvas.setPointerCapture(e.pointerId);move(e)});
+canvas.addEventListener('pointermove',e=>{if(state.pointer)move(e)});
+canvas.addEventListener('pointerup',e=>{if(state.pointer){move(e);state.pointer=false}});
+canvas.addEventListener('pointercancel',()=>{state.pointer=false});
+$('Center').addEventListener('click',()=>{if(!state.joined)return;const p=state.members.get(state.me);if(!p)return;p.x=.5;p.y=.5;sendToHost({type:'move',x:.5,y:.5});draw()});
+window.addEventListener('pagehide',()=>{if(state.peer)leave()});
+draw();resetUI();
+})();
 </script></body></html>
