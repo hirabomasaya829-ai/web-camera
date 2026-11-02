@@ -2,11 +2,11 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Web機能テスト v1.7.0</title>
+<title>Web機能テスト v1.8.0</title>
 <style>
 :root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif}*{box-sizing:border-box}body{margin:0;background:#111318;color:#f6f7f9}main{max-width:720px;margin:auto;padding:22px 16px}h1{font-size:22px;margin:0 0 6px}p{color:#b9bec9;font-size:14px;line-height:1.6}.preview{background:#050505;aspect-ratio:4/3;border-radius:14px;overflow:hidden;display:grid;place-items:center;margin:20px 0;position:relative}video{width:100%;height:100%;object-fit:contain}#placeholder{position:absolute;color:#b9bec9;font-size:14px;text-align:center;pointer-events:none}.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}button,a.download{border:1px solid #404753;border-radius:10px;padding:13px 10px;background:#292f3a;color:white;font-size:15px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none}button.primary{background:#396ae5;border-color:#396ae5}button:disabled{opacity:.4;cursor:not-allowed}#status{min-height:44px}#photo{display:none;width:100%;border-radius:12px;margin:14px 0}a.download{display:none;background:#285b49;border-color:#285b49}small{color:#aeb4bf;display:block;margin-top:18px;line-height:1.6}
 .viz{background:#171d28;border:1px solid #343e50;border-radius:14px;padding:12px;margin:12px 0 16px;overflow:hidden}.vizTitle{font-size:13px;color:#b9c9e7;margin:0 0 8px}.gpsCanvas{width:100%;height:230px;display:block;border-radius:10px;background:#101724}.gpsMetrics{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:#c9d4e7;margin-top:8px}.phoneStage{height:235px;display:grid;place-items:center;perspective:600px;background:radial-gradient(ellipse at center,#293851 0%,#101724 70%);border-radius:10px;position:relative}.phone3d{width:92px;height:166px;border:8px solid #333c4d;border-radius:19px;background:linear-gradient(145deg,#5fa4ff,#19409e);box-shadow:8px 12px 28px #0008,inset 0 0 0 2px #8ebdff;display:flex;align-items:center;justify-content:center;transform-style:preserve-3d;transition:transform .12s linear;position:relative}.phone3d:before{content:"";position:absolute;top:6px;width:30px;height:5px;border-radius:8px;background:#0e1b32}.phone3d span{font-size:12px;font-weight:bold;text-shadow:0 1px 3px #0007}.stageHint{position:absolute;bottom:10px;color:#9eb1ce;font-size:12px}.accelTrack{height:13px;border-radius:8px;background:#263145;position:relative;overflow:hidden;margin-top:10px}.accelBar{position:absolute;left:50%;height:100%;width:0;background:#55c7a3;transition:width .15s linear}.accelLabel{font-size:12px;color:#b9c9e7;margin-top:5px}.extra{margin-top:28px;padding-top:20px;border-top:1px solid #404753}.extra h2{font-size:19px}.sensorCanvas{width:100%;height:auto;background:#0d1422;border:1px solid #33415b;border-radius:12px;margin-top:12px}.readout{background:#20242d;border-radius:10px;padding:12px;margin:12px 0;font-size:14px;line-height:1.7}#scanCopy,#speechCopy{margin-top:4px}</style></head>
-<body><main><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><span style="font-size:12px;color:#aeb4bf">Web機能テストアプリ</span><span id="appVersion" style="font-size:13px;font-weight:700;color:#dbe7ff;background:#273956;border:1px solid #506a95;border-radius:999px;padding:5px 12px">v1.7.0</span></div><h1>Webカメラ</h1><p>ブラウザからカメラを起動して写真を保存できます。</p>
+<body><main><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><span style="font-size:12px;color:#aeb4bf">Web機能テストアプリ</span><span id="appVersion" style="font-size:13px;font-weight:700;color:#dbe7ff;background:#273956;border:1px solid #506a95;border-radius:999px;padding:5px 12px">v1.8.0</span></div><h1>Webカメラ</h1><p>ブラウザからカメラを起動して写真を保存できます。</p>
 <div class="preview"><video id="video" autoplay playsinline muted></video><div id="placeholder">「カメラ起動」を押してください</div></div>
 <div class="controls"><button class="primary" id="start">カメラ起動</button><button id="switch" disabled>前面 / 背面切替</button><button id="capture" disabled>写真を撮る</button><button id="stop" disabled>カメラ停止</button></div>
 <p id="status" role="status" aria-live="polite"></p><canvas id="canvas" hidden></canvas><img id="photo" alt="撮影した写真"><a id="download" class="download">撮影画像を保存</a>
@@ -38,6 +38,13 @@
 <video id="screenPreview" autoplay muted playsinline controls style="display:none;width:100%;max-height:360px;background:#000;border-radius:10px"></video>
 <div id="screenInfo" class="readout">共有画面: --</div>
 <small>画面共有は主にPC版Chrome・Edge・Firefoxなどで利用できます。Android版Chromeは画面取得APIに非対応です。音声の録音可否はブラウザ・共有対象に依存します。録画はこの端末内で作成し、サーバーにはアップロードしません。ほかの人へのリアルタイム配信機能ではありません。</small>
+</section>
+<section class="extra"><h2>Canvas録画（Android Chrome対応）</h2>
+<p>このアプリ内の専用Canvasに描画した映像を録画します。スマホ画面全体やほかのアプリは録画できません。</p>
+<div class="controls"><button id="canvasDemo" class="primary">アニメーション開始</button><button id="canvasCamera">カメラ映像を表示</button><button id="canvasStopSource">映像停止</button></div>
+<canvas id="recordCanvas" width="640" height="360" style="width:100%;aspect-ratio:16/9;background:#101827;border-radius:10px;display:block"></canvas>
+<div class="controls"><button id="canvasRecStart">Canvas録画開始</button><button id="canvasRecStop" disabled>録画停止</button><a id="canvasRecSave" style="display:none" download="canvas-recording.webm">録画を保存</a></div>
+<p id="canvasRecStatus" role="status">待機中</p><small>Canvas内のアニメーションまたはカメラ映像だけを録画します。録画中はこのページを開いたままにしてください。音声は含まれません。WebM形式の保存に対応するブラウザが必要です。</small>
 </section></main>
 <script>
 const video=document.getElementById('video'),startBtn=document.getElementById('start'),switchBtn=document.getElementById('switch'),captureBtn=document.getElementById('capture'),stopBtn=document.getElementById('stop'),statusEl=document.getElementById('status'),placeholder=document.getElementById('placeholder'),canvas=document.getElementById('canvas'),photo=document.getElementById('photo'),download=document.getElementById('download');
@@ -253,4 +260,47 @@ screenRec.addEventListener('click',()=>{
 });
 screenRecStop.addEventListener('click',()=>{if(screenRecorder?.state==='recording'){screenRecorder.stop();screenRecStop.disabled=true;screenStatus.textContent='録画を処理中…'}});
 window.addEventListener('pagehide',()=>{if(screenRecorder?.state==='recording')screenRecorder.stop();screenRelease();if(screenURL)URL.revokeObjectURL(screenURL)});
+
+/* Mobile-friendly Canvas captureStream + MediaRecorder */
+const recordCanvas=document.getElementById('recordCanvas'),recordCtx=recordCanvas.getContext('2d'),canvasDemo=document.getElementById('canvasDemo'),canvasCamera=document.getElementById('canvasCamera'),canvasStopSource=document.getElementById('canvasStopSource'),canvasRecStart=document.getElementById('canvasRecStart'),canvasRecStop=document.getElementById('canvasRecStop'),canvasRecSave=document.getElementById('canvasRecSave'),canvasRecStatus=document.getElementById('canvasRecStatus');
+let canvasSource='idle',canvasCameraStream=null,canvasCameraVideo=null,canvasDrawRAF=null,canvasRecorder=null,canvasRecordStream=null,canvasChunks=[],canvasBlobURL=null,canvasFrame=0;
+const canvasCanRecord=typeof recordCanvas.captureStream==='function'&&typeof MediaRecorder!=='undefined';
+if(!canvasCanRecord){canvasRecStart.disabled=true;canvasRecStatus.textContent='このブラウザではCanvas録画が利用できません'}
+function canvasDraw(){
+ const w=recordCanvas.width,h=recordCanvas.height;
+ recordCtx.fillStyle='#101827';recordCtx.fillRect(0,0,w,h);
+ if(canvasSource==='camera'&&canvasCameraVideo?.readyState>=2){
+  const vw=canvasCameraVideo.videoWidth,vh=canvasCameraVideo.videoHeight;
+  if(vw&&vh){const s=Math.max(w/vw,h/vh),sw=w/s,sh=h/s;recordCtx.drawImage(canvasCameraVideo,(vw-sw)/2,(vh-sh)/2,sw,sh,0,0,w,h)}
+ }else if(canvasSource==='demo'){
+  const t=performance.now()/1000;recordCtx.fillStyle='#172f49';recordCtx.fillRect(0,0,w,h);
+  for(let i=0;i<9;i++){const x=w/2+Math.sin(t*(.6+i*.09)+i)*210,y=h/2+Math.cos(t*(.8+i*.07)+i*1.4)*115;recordCtx.beginPath();recordCtx.fillStyle='hsl('+((t*45+i*36)%360)+' 85% 65%)';recordCtx.arc(x,y,12+i*2,0,Math.PI*2);recordCtx.fill()}
+  recordCtx.fillStyle='white';recordCtx.font='bold 28px sans-serif';recordCtx.fillText('Canvas Recording Demo',22,45);
+ }else{recordCtx.fillStyle='#c8d5e5';recordCtx.font='26px sans-serif';recordCtx.fillText('Canvas録画テスト',28,60);recordCtx.font='18px sans-serif';recordCtx.fillText('アニメーションかカメラを選択してください',28,105)}
+ if(canvasSource!=='idle'){recordCtx.fillStyle='rgba(0,0,0,.5)';recordCtx.fillRect(0,h-42,w,42);recordCtx.fillStyle='white';recordCtx.font='20px sans-serif';recordCtx.fillText(new Date().toLocaleTimeString('ja-JP'),20,h-14);if(canvasRecorder?.state==='recording'){recordCtx.fillStyle='#ff4545';recordCtx.beginPath();recordCtx.arc(w-55,h-21,8,0,Math.PI*2);recordCtx.fill();recordCtx.fillStyle='white';recordCtx.font='bold 16px sans-serif';recordCtx.fillText('REC',w-42,h-15)}}
+ if(canvasSource!=='idle')canvasDrawRAF=requestAnimationFrame(canvasDraw);
+}
+function canvasStopCamera(){if(canvasCameraStream){canvasCameraStream.getTracks().forEach(t=>t.stop());canvasCameraStream=null}if(canvasCameraVideo){canvasCameraVideo.pause();canvasCameraVideo.srcObject=null;canvasCameraVideo=null}}
+function canvasSetIdle(){canvasSource='idle';if(canvasDrawRAF!==null){cancelAnimationFrame(canvasDrawRAF);canvasDrawRAF=null}canvasStopCamera();canvasDraw()}
+canvasDemo.addEventListener('click',()=>{canvasSetIdle();canvasSource='demo';canvasDraw();canvasRecStatus.textContent='アニメーションを表示中'});
+canvasCamera.addEventListener('click',async()=>{canvasSetIdle();try{const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});canvasCameraStream=s;canvasCameraVideo=document.createElement('video');canvasCameraVideo.muted=true;canvasCameraVideo.playsInline=true;canvasCameraVideo.srcObject=s;await canvasCameraVideo.play();canvasSource='camera';canvasDraw();canvasRecStatus.textContent='カメラ映像をCanvasに表示中'}catch(e){canvasStopCamera();canvasRecStatus.textContent='カメラを開始できません: '+(e.message||e.name)}});
+canvasStopSource.addEventListener('click',()=>{canvasSetIdle();canvasRecStatus.textContent='映像停止'});
+canvasRecStart.addEventListener('click',()=>{
+ if(!canvasCanRecord)return;
+ const mime=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));
+ if(!mime){canvasRecStatus.textContent='WebM形式で録画できません';return}
+ try{
+  if(canvasBlobURL){URL.revokeObjectURL(canvasBlobURL);canvasBlobURL=null}canvasRecSave.style.display='none';
+  canvasChunks=[];canvasRecordStream=recordCanvas.captureStream(24);
+  canvasRecorder=new MediaRecorder(canvasRecordStream,{mimeType:mime});
+  const recorder=canvasRecorder;
+  recorder.ondataavailable=e=>{if(e.data.size)canvasChunks.push(e.data)};
+  recorder.onerror=e=>{canvasRecStatus.textContent='録画エラー: '+(e.error?.message||'不明なエラー')};
+  recorder.onstop=()=>{if(canvasRecordStream){canvasRecordStream.getTracks().forEach(t=>t.stop());canvasRecordStream=null}canvasRecStart.disabled=!canvasCanRecord;canvasRecStop.disabled=true;if(canvasChunks.length){const blob=new Blob(canvasChunks,{type:recorder.mimeType||'video/webm'});canvasBlobURL=URL.createObjectURL(blob);canvasRecSave.href=canvasBlobURL;canvasRecSave.download='canvas-recording-'+new Date().toISOString().replace(/[:.]/g,'-')+'.webm';canvasRecSave.textContent='録画を保存 ('+(blob.size/1048576).toFixed(1)+' MB)';canvasRecSave.style.display='inline-block';canvasRecStatus.textContent='録画完了。保存できます'}else canvasRecStatus.textContent='録画データがありません'};
+  recorder.start(1000);canvasRecStart.disabled=true;canvasRecStop.disabled=false;canvasRecStatus.textContent='Canvas録画中…';
+ }catch(e){if(canvasRecordStream){canvasRecordStream.getTracks().forEach(t=>t.stop());canvasRecordStream=null}canvasRecStatus.textContent='録画できません: '+(e.message||e.name)}
+});
+canvasRecStop.addEventListener('click',()=>{if(canvasRecorder?.state==='recording'){canvasRecorder.stop();canvasRecStop.disabled=true;canvasRecStatus.textContent='録画データを処理中…'}});
+window.addEventListener('pagehide',()=>{if(canvasRecorder?.state==='recording')canvasRecorder.stop();canvasSetIdle();if(canvasBlobURL)URL.revokeObjectURL(canvasBlobURL)});
+canvasDraw();
 </script></body></html>
