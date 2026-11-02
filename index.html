@@ -2,11 +2,11 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Web機能テスト v1.5.1</title>
+<title>Web機能テスト v1.5.2</title>
 <style>
 :root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif}*{box-sizing:border-box}body{margin:0;background:#111318;color:#f6f7f9}main{max-width:720px;margin:auto;padding:22px 16px}h1{font-size:22px;margin:0 0 6px}p{color:#b9bec9;font-size:14px;line-height:1.6}.preview{background:#050505;aspect-ratio:4/3;border-radius:14px;overflow:hidden;display:grid;place-items:center;margin:20px 0;position:relative}video{width:100%;height:100%;object-fit:contain}#placeholder{position:absolute;color:#b9bec9;font-size:14px;text-align:center;pointer-events:none}.controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}button,a.download{border:1px solid #404753;border-radius:10px;padding:13px 10px;background:#292f3a;color:white;font-size:15px;font-weight:600;cursor:pointer;text-align:center;text-decoration:none}button.primary{background:#396ae5;border-color:#396ae5}button:disabled{opacity:.4;cursor:not-allowed}#status{min-height:44px}#photo{display:none;width:100%;border-radius:12px;margin:14px 0}a.download{display:none;background:#285b49;border-color:#285b49}small{color:#aeb4bf;display:block;margin-top:18px;line-height:1.6}
 .viz{background:#171d28;border:1px solid #343e50;border-radius:14px;padding:12px;margin:12px 0 16px;overflow:hidden}.vizTitle{font-size:13px;color:#b9c9e7;margin:0 0 8px}.gpsCanvas{width:100%;height:230px;display:block;border-radius:10px;background:#101724}.gpsMetrics{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:#c9d4e7;margin-top:8px}.phoneStage{height:235px;display:grid;place-items:center;perspective:600px;background:radial-gradient(ellipse at center,#293851 0%,#101724 70%);border-radius:10px;position:relative}.phone3d{width:92px;height:166px;border:8px solid #333c4d;border-radius:19px;background:linear-gradient(145deg,#5fa4ff,#19409e);box-shadow:8px 12px 28px #0008,inset 0 0 0 2px #8ebdff;display:flex;align-items:center;justify-content:center;transform-style:preserve-3d;transition:transform .12s linear;position:relative}.phone3d:before{content:"";position:absolute;top:6px;width:30px;height:5px;border-radius:8px;background:#0e1b32}.phone3d span{font-size:12px;font-weight:bold;text-shadow:0 1px 3px #0007}.stageHint{position:absolute;bottom:10px;color:#9eb1ce;font-size:12px}.accelTrack{height:13px;border-radius:8px;background:#263145;position:relative;overflow:hidden;margin-top:10px}.accelBar{position:absolute;left:50%;height:100%;width:0;background:#55c7a3;transition:width .15s linear}.accelLabel{font-size:12px;color:#b9c9e7;margin-top:5px}.extra{margin-top:28px;padding-top:20px;border-top:1px solid #404753}.extra h2{font-size:19px}.sensorCanvas{width:100%;height:auto;background:#0d1422;border:1px solid #33415b;border-radius:12px;margin-top:12px}.readout{background:#20242d;border-radius:10px;padding:12px;margin:12px 0;font-size:14px;line-height:1.7}#scanCopy,#speechCopy{margin-top:4px}</style></head>
-<body><main><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><span style="font-size:12px;color:#aeb4bf">Web機能テストアプリ</span><span id="appVersion" style="font-size:13px;font-weight:700;color:#dbe7ff;background:#273956;border:1px solid #506a95;border-radius:999px;padding:5px 12px">v1.5.1</span></div><h1>Webカメラ</h1><p>ブラウザからカメラを起動して写真を保存できます。</p>
+<body><main><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><span style="font-size:12px;color:#aeb4bf">Web機能テストアプリ</span><span id="appVersion" style="font-size:13px;font-weight:700;color:#dbe7ff;background:#273956;border:1px solid #506a95;border-radius:999px;padding:5px 12px">v1.5.2</span></div><h1>Webカメラ</h1><p>ブラウザからカメラを起動して写真を保存できます。</p>
 <div class="preview"><video id="video" autoplay playsinline muted></video><div id="placeholder">「カメラ起動」を押してください</div></div>
 <div class="controls"><button class="primary" id="start">カメラ起動</button><button id="switch" disabled>前面 / 背面切替</button><button id="capture" disabled>写真を撮る</button><button id="stop" disabled>カメラ停止</button></div>
 <p id="status" role="status" aria-live="polite"></p><canvas id="canvas" hidden></canvas><img id="photo" alt="撮影した写真"><a id="download" class="download">撮影画像を保存</a>
@@ -84,34 +84,61 @@ scanStop.addEventListener('click',stopScan);scanCopy.addEventListener('click',as
 /* Speech recognition */
 const speechStart=document.getElementById('speechStart'),speechStop=document.getElementById('speechStop'),speechStatus=document.getElementById('speechStatus'),speechResult=document.getElementById('speechResult'),speechCopy=document.getElementById('speechCopy');
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-let recognizer=null,spokenText='',speechFinals=new Map();
-function displaySpeech(interim=''){const confirmed=Array.from(speechFinals.entries()).sort((a,b)=>a[0]-b[0]).map(x=>x[1]).filter(Boolean);spokenText=confirmed.join('\n');speechResult.textContent=[spokenText,interim].filter(Boolean).join('\n')||'聞き取り中…'}
+let recognizer=null,spokenText='',speechActive=false,speechRestartTimer=null,speechEntries=[],speechSessionFinals=new Map(),speechLastError='';
+function normalizeSpeech(t){return t.replace(/[\\s。、！？!?.,]/g,'').toLowerCase()}
+function showSpeech(interim=''){spokenText=speechEntries.map(x=>x.text).join('\n');speechResult.textContent=[spokenText,interim].filter(Boolean).join('\n')||'聞き取り中…'}
+function startSpeechSession(){
+ if(!speechActive||!SR)return;
+ const current=new SR();recognizer=current;current.lang='ja-JP';current.continuous=true;current.interimResults=true;speechSessionFinals=new Map();
+ current.onresult=e=>{
+   const now=Date.now();let interim=[];
+   for(let i=0;i<e.results.length;i++){
+     const result=e.results[i],t=(result[0]?.transcript||'').trim();
+     if(!t)continue;
+     if(result.isFinal){
+       if(speechSessionFinals.get(i)===t)continue;
+       speechSessionFinals.set(i,t);
+       const norm=normalizeSpeech(t);
+       const recent=speechEntries[speechEntries.length-1];
+       // Browser sometimes returns the same utterance twice as separate results.
+       if(!recent||normalizeSpeech(recent.text)!==norm||now-recent.time>2500){speechEntries.push({text:t,time:now})}
+     }else if(!speechSessionFinals.has(i)){interim.push(t)}
+   }
+   showSpeech(interim.join(' '));
+ };
+ current.onerror=e=>{
+   speechLastError=e.error;
+   speechStatus.textContent='音声認識: '+e.error;
+   if(['not-allowed','service-not-allowed','audio-capture'].includes(e.error)){speechActive=false}
+ };
+ current.onend=()=>{
+   if(recognizer!==current)return;
+   recognizer=null;showSpeech();
+   if(speechActive){
+     speechStatus.textContent='認識を継続しています…';
+     speechRestartTimer=setTimeout(()=>{speechRestartTimer=null;startSpeechSession()},350);
+   }else{
+     speechStart.disabled=false;speechStop.disabled=true;
+     speechStatus.textContent=speechLastError?'認識停止: '+speechLastError:'認識停止';
+   }
+ };
+ try{current.start();speechStatus.textContent='音声を聞き取り中…'}
+ catch(e){recognizer=null;speechActive=false;speechStart.disabled=false;speechStop.disabled=true;speechStatus.textContent='開始できません: '+e.message}
+}
+function stopSpeech(){speechActive=false;if(speechRestartTimer!==null){clearTimeout(speechRestartTimer);speechRestartTimer=null}if(recognizer){recognizer.stop()}else{speechStart.disabled=false;speechStop.disabled=true;speechStatus.textContent='認識停止'}}
 speechStart.addEventListener('click',()=>{
  if(!SR){speechStatus.textContent='このブラウザは音声認識に対応していません';return}
- if(recognizer)return;
- const current=new SR();recognizer=current;current.lang='ja-JP';current.continuous=true;current.interimResults=true;
- speechFinals=new Map();spokenText='';speechResult.textContent='聞き取り中…';
- current.onresult=e=>{
-   let interim=[];
-   // Each result index is stable within a recognition session; update rather than append repeatedly.
-   for(let i=0;i<e.results.length;i++){
-     const result=e.results[i],t=result[0]?.transcript?.trim()||'';
-     if(result.isFinal){speechFinals.set(i,t)}
-     else if(t){interim.push(t)}
-   }
-   displaySpeech(interim.join(' '));
- };
- current.onerror=e=>{speechStatus.textContent='認識エラー: '+e.error};
- current.onend=()=>{if(recognizer!==current)return;recognizer=null;speechStart.disabled=false;speechStop.disabled=true;displaySpeech();if(!speechStatus.textContent.startsWith('認識エラー'))speechStatus.textContent='認識終了'};
- try{current.start();speechStart.disabled=true;speechStop.disabled=false;speechStatus.textContent='音声を聞き取り中…'}
- catch(e){recognizer=null;speechStart.disabled=false;speechStatus.textContent='開始できません: '+e.message}
+ if(speechActive)return;
+ speechEntries=[];spokenText='';speechLastError='';speechActive=true;
+ speechStart.disabled=true;speechStop.disabled=false;speechResult.textContent='聞き取り中…';
+ startSpeechSession();
 });
-speechStop.addEventListener('click',()=>{if(recognizer)recognizer.stop()});
-speechCopy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(spokenText||'');speechStatus.textContent='確定した文字をコピーしました'}catch(e){speechStatus.textContent='コピーできませんでした'}});
+speechStop.addEventListener('click',stopSpeech);
+speechCopy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(spokenText);speechStatus.textContent='確定した文字をコピーしました'}catch(e){speechStatus.textContent='コピーできませんでした'}});
 /* Multi-touch via pointer events */
 const touchPad=document.getElementById('touchPad'),touchCanvas=document.getElementById('touchCanvas'),touchCtx=touchCanvas.getContext('2d'),touchInfo=document.getElementById('touchInfo'),touches=new Map();
 function drawTouches(){const w=touchCanvas.width,h=touchCanvas.height;touchCtx.fillStyle='#101b2c';touchCtx.fillRect(0,0,w,h);touchCtx.strokeStyle='#283b54';touchCtx.lineWidth=1;for(let x=0;x<w;x+=40){touchCtx.beginPath();touchCtx.moveTo(x,0);touchCtx.lineTo(x,h);touchCtx.stroke()}for(let y=0;y<h;y+=40){touchCtx.beginPath();touchCtx.moveTo(0,y);touchCtx.lineTo(w,y);touchCtx.stroke()}let i=0;for(const [id,p] of touches){const hue=(i++*67+175)%360;touchCtx.beginPath();touchCtx.arc(p.x,p.y,38,0,Math.PI*2);touchCtx.fillStyle='hsla('+hue+',90%,60%,.35)';touchCtx.fill();touchCtx.strokeStyle='hsl('+hue+',90%,65%)';touchCtx.lineWidth=4;touchCtx.stroke();touchCtx.fillStyle='#fff';touchCtx.font='bold 24px system-ui';touchCtx.textAlign='center';touchCtx.fillText(String(id),p.x,p.y+8)}touchInfo.textContent='タッチ数: '+touches.size+(touches.size?' / '+Array.from(touches.entries()).map(([id,p])=>'ID '+id+': ('+Math.round(p.x/w*100)+'%, '+Math.round(p.y/h*100)+'%)').join('  '):'')}
 function pointerPos(e){const r=touchPad.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*touchCanvas.width,y:(e.clientY-r.top)/r.height*touchCanvas.height}}
 touchPad.addEventListener('pointerdown',e=>{e.preventDefault();touches.set(e.pointerId,pointerPos(e));touchPad.setPointerCapture(e.pointerId);drawTouches()});touchPad.addEventListener('pointermove',e=>{if(touches.has(e.pointerId)){touches.set(e.pointerId,pointerPos(e));drawTouches()}});for(const type of ['pointerup','pointercancel','lostpointercapture'])touchPad.addEventListener(type,e=>{touches.delete(e.pointerId);drawTouches()});drawTouches();
-window.addEventListener('pagehide',()=>{stopAudio();stopScan();if(recognizer)recognizer.stop()});
+window.addEventListener('pagehide',()=>{stopAudio();stopScan();stopSpeech()});
 </script></body></html>
