@@ -10,7 +10,14 @@
 <div class="preview"><video id="video" autoplay playsinline muted></video><div id="placeholder">「カメラ起動」を押してください</div></div>
 <div class="controls"><button class="primary" id="start">カメラ起動</button><button id="switch" disabled>前面 / 背面切替</button><button id="capture" disabled>写真を撮る</button><button id="stop" disabled>カメラ停止</button></div>
 <p id="status" role="status" aria-live="polite"></p><canvas id="canvas" hidden></canvas><img id="photo" alt="撮影した写真"><a id="download" class="download">撮影画像を保存</a>
-<section style="margin-top:28px;padding-top:20px;border-top:1px solid #404753"><h2 style="font-size:19px">GPS・位置情報テスト</h2><p>現在地を取得して、緯度・経度・精度を表示します。位置情報はサーバーへ送信しません。</p><div class="controls"><button id="gpsOnce" class="primary">現在地を取得</button><button id="gpsWatch">連続測位を開始</button><button id="gpsStop" disabled>連続測位を停止</button><button id="gpsMap" disabled>地図で開く</button></div><p id="gpsStatus" role="status" aria-live="polite">未取得</p><div id="gpsData" style="background:#20242d;border-radius:12px;padding:14px;line-height:2;white-space:pre-wrap;font-variant-numeric:tabular-nums">位置情報はまだありません</div></section><small>カメラ利用にはブラウザの許可が必要です。通常はHTTPSまたはlocalhostで動作します。画像は端末内で処理され、サーバーへ送信しません。</small></main>
+<section style="margin-top:28px;padding-top:20px;border-top:1px solid #404753"><h2 style="font-size:19px">GPS・位置情報テスト</h2><p>現在地を取得して、緯度・経度・精度を表示します。位置情報はサーバーへ送信しません。</p><div class="controls"><button id="gpsOnce" class="primary">現在地を取得</button><button id="gpsWatch">連続測位を開始</button><button id="gpsStop" disabled>連続測位を停止</button><button id="gpsMap" disabled>地図で開く</button></div><p id="gpsStatus" role="status" aria-live="polite">未取得</p><div id="gpsData" style="background:#20242d;border-radius:12px;padding:14px;line-height:2;white-space:pre-wrap;font-variant-numeric:tabular-nums">位置情報はまだありません</div></section><section style="margin-top:28px;padding-top:20px;border-top:1px solid #404753">
+<h2 style="font-size:19px">加速度・ジャイロセンサーテスト</h2>
+<p>スマホを傾けたり振ったりして、値が変化するか確認できます。センサーデータは端末内だけで表示します。</p>
+<div class="controls"><button id="motionStart" class="primary">センサー開始</button><button id="motionStop" disabled>センサー停止</button></div>
+<p id="motionStatus" role="status" aria-live="polite">未開始</p>
+<div id="motionData" style="background:#20242d;border-radius:12px;padding:14px;line-height:1.9;font-variant-numeric:tabular-nums;white-space:pre-wrap">加速度: --\n角速度: --\n傾き: --</div>
+<small>加速度はm/s²、角速度は°/秒、傾きは°。端末・ブラウザによって一部取得できない場合があります。静止中も重力込みの加速度は約9.8m/s²になります。</small>
+</section><small>カメラ利用にはブラウザの許可が必要です。通常はHTTPSまたはlocalhostで動作します。画像は端末内で処理され、サーバーへ送信しません。</small></main>
 <script>
 const video=document.getElementById('video'),startBtn=document.getElementById('start'),switchBtn=document.getElementById('switch'),captureBtn=document.getElementById('capture'),stopBtn=document.getElementById('stop'),statusEl=document.getElementById('status'),placeholder=document.getElementById('placeholder'),canvas=document.getElementById('canvas'),photo=document.getElementById('photo'),download=document.getElementById('download');
 let stream=null,facing='environment',imageUrl=null;
@@ -30,4 +37,20 @@ gpsWatch.addEventListener('click',()=>{if(!gpsAvailable()||watchId!==null)return
 gpsStop.addEventListener('click',()=>{if(watchId!==null)navigator.geolocation.clearWatch(watchId);watchId=null;gpsWatch.disabled=false;gpsStop.disabled=true;gpsStatus.textContent='連続測位を停止しました'});
 gpsMap.addEventListener('click',()=>{if(!lastPosition)return;const p=lastPosition.coords;window.open('https://www.google.com/maps?q='+encodeURIComponent(p.latitude+','+p.longitude),'_blank','noopener')});
 window.addEventListener('pagehide',()=>{if(watchId!==null)navigator.geolocation.clearWatch(watchId)});
+
+const motionStart=document.getElementById('motionStart'),motionStop=document.getElementById('motionStop'),motionStatus=document.getElementById('motionStatus'),motionData=document.getElementById('motionData');
+let motionActive=false,lastMotion=null,lastOrientation=null,motionTimer=null,motionEvents=0;
+const fmt=(n,d=2)=>typeof n==='number'&&Number.isFinite(n)?n.toFixed(d):'--';
+function renderMotion(){if(!motionActive)return;const a=lastMotion?.acceleration,ag=lastMotion?.accelerationIncludingGravity,r=lastMotion?.rotationRate,o=lastOrientation;
+motionData.textContent='加速度（重力なし） m/s²\n  X: '+fmt(a?.x)+'  Y: '+fmt(a?.y)+'  Z: '+fmt(a?.z)+'\n加速度（重力込み） m/s²\n  X: '+fmt(ag?.x)+'  Y: '+fmt(ag?.y)+'  Z: '+fmt(ag?.z)+'\n角速度 °/秒\n  α: '+fmt(r?.alpha)+'  β: '+fmt(r?.beta)+'  γ: '+fmt(r?.gamma)+'\n傾き °\n  α（方位軸）: '+fmt(o?.alpha,1)+'  β（前後）: '+fmt(o?.beta,1)+'  γ（左右）: '+fmt(o?.gamma,1);
+motionStatus.textContent=motionEvents?'センサー取得中（受信 '+motionEvents+' 回）':'センサー待機中… 端末を少し動かしてください';}
+function onMotion(e){lastMotion=e;motionEvents++}
+function onOrientation(e){lastOrientation=e;motionEvents++}
+function stopMotion(){motionActive=false;window.removeEventListener('devicemotion',onMotion);window.removeEventListener('deviceorientation',onOrientation);if(motionTimer!==null)clearInterval(motionTimer);motionTimer=null;motionStart.disabled=false;motionStop.disabled=true;motionStatus.textContent='センサー停止'}
+motionStart.addEventListener('click',async()=>{if(!('DeviceMotionEvent'in window)&&!('DeviceOrientationEvent'in window)){motionStatus.textContent='このブラウザではセンサーAPIに対応していません。';return}
+motionStart.disabled=true;motionStatus.textContent='センサーの利用許可を確認中…';
+try{for(const cls of [window.DeviceMotionEvent,window.DeviceOrientationEvent]){if(cls&&typeof cls.requestPermission==='function'){const permission=await cls.requestPermission();if(permission!=='granted')throw Error('センサー利用が許可されませんでした')}}
+lastMotion=null;lastOrientation=null;motionEvents=0;motionActive=true;window.addEventListener('devicemotion',onMotion);window.addEventListener('deviceorientation',onOrientation);motionStop.disabled=false;renderMotion();motionTimer=setInterval(renderMotion,150);
+}catch(err){motionStart.disabled=false;motionStatus.textContent=err.message||'センサーを開始できませんでした'}});
+motionStop.addEventListener('click',stopMotion);window.addEventListener('pagehide',stopMotion);
 </script></body></html>
